@@ -20,6 +20,7 @@ class InvertedIndex:
 		self.term_freq_path = os.path.join(CACHE_DIR, "term_frequencies.pkl")
 		self.doc_lengths_path = os.path.join(CACHE_DIR, "doc_lengths.pkl")
 		
+		
 	
 	def __add_document(self, doc_id, text):
 		tokens = tokenization(text)
@@ -63,6 +64,9 @@ class InvertedIndex:
 			self.term_frequencies = pickle.load(f)
 		with open(self.doc_lengths_path, 'rb') as f:
 			self.doc_lengths = pickle.load(f)
+		
+		self._N = len(self.docmap)
+		self._avg_doc_length = sum(self.doc_lengths.values()) / len(self.doc_lengths)
 	
 	def get_tf(self, doc_id, term):
 		token = tokenization(term)
@@ -75,8 +79,7 @@ class InvertedIndex:
 		token = tokenization(term)
 		if len(token) != 1:
 			raise Exception("Should be one term")
-		movies = load_movies()
-		N = len(movies)
+		N = self._N
 		df = len(self.index[token[0]])
 		IDF = math.log((N - df + 0.5) / (df + 0.5) + 1)
 		return IDF
@@ -84,7 +87,7 @@ class InvertedIndex:
 	def get_bm25_tf(self, doc_id, term, k1=BM25_K1, b=BM25_B):
 		tf = self.get_tf(doc_id, term)
 		doc_length = self.doc_lengths.get(doc_id, 0)
-		avg_doc_length = self.__get_avg_doc_length()
+		avg_doc_length = self._avg_doc_length
 		length_norm = 1 - b + b * (doc_length / avg_doc_length)
 		tf_component = (tf * (k1 + 1)) / (tf + k1 * length_norm)
 		return tf_component
