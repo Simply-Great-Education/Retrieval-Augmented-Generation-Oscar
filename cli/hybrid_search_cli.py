@@ -1,6 +1,6 @@
 import argparse
 
-from lib.hybrid_search import normalize_scores, weighted_search_results
+from lib.hybrid_search import normalize_scores, weighted_search_results, rrf_search_results
 
 def main() -> None:
 	parser = argparse.ArgumentParser(description="Hybrid Search CLI")
@@ -11,17 +11,28 @@ def main() -> None:
 	
 	weighted_search_parser = subparsers.add_parser("weighted-search", help="weighted search")
 	weighted_search_parser.add_argument("query", type=str, help="query for weighted search")
-	weighted_search_parser.add_argument("--alpha", type=float, default=0.5, help="query for weighted search")
-	weighted_search_parser.add_argument("--limit", type=int, default=5, help="query for weighted search")
+	weighted_search_parser.add_argument("--alpha", type=float, default=0.5, help="alpha thing")
+	weighted_search_parser.add_argument("--limit", type=int, default=5, help="limit of results printed")
+	
+	rrf_search_parser = subparsers.add_parser("rrf-search", help="reciprocal Rank Fusion search")
+	rrf_search_parser.add_argument("query", type=str, help="query for rrf search")
+	rrf_search_parser.add_argument("-k", type=int, default=60, help="k parameter thing controls how much weight we give higher ranked results")
+	rrf_search_parser.add_argument("--limit", type=int, default=5, help="num of results printed")
+	
 	
 	args = parser.parse_args()
 
 	match args.command:
 		case "normalize":
-			normalize_scores(args.nums)
+			results = normalize_scores(args.nums)
+			for score in results:
+				print(f"* {score:.4f}")
 		
 		case "weighted-search":
 			weighted_search_results(args.query, args.alpha, args.limit)
+		
+		case "rrf-search":
+			rrf_search_results(args.query, args.k, args.limit)
 			
 		case _:
 			parser.print_help()
