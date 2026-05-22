@@ -18,15 +18,15 @@ model = "gemma-4-31b-it"
 
     #print(m.name, "-", m.supported_actions)
     
-prompt = "Pick a number 1 to 100, only return your choice in number and nothing else"
+prompt = "Pick a random animal that lives in the united kingdom, only output the name of the animal and nothing else"
     
 for i in range(0, 3):
-	print(i)
+	print("iteration", i)
 	response = client.models.generate_content(model=model, contents=prompt)
 	print(response.text)
 	sleep(3)
 
 			
-prompt = f"Rate how well this movie matches the search query. Query: {query} Movie: {doc.get('title', "")}Consider: Direct relevance to query, User intent (what they're looking for), Content appropriateness. Rate 0-10 (10 = perfect match). Output ONLY the number in your response"
+# prompt = f"Rate how well this movie matches the search query. Query: {query} Movie: {doc.get('title', "")}Consider: Direct relevance to query, User intent (what they're looking for), Content appropriateness. Rate 0-10 (10 = perfect match). Output ONLY the number in your response"
 
 

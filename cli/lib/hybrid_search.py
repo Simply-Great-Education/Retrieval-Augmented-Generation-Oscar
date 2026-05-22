@@ -239,17 +239,18 @@ def rrf_search_command(query, k, enhance, limit, rerank_method):
 		enhanced_query = enhance_query(query, method=enhance)
 		query = enhanced_query
 	
+	search_limit = limit
+	
 	if rerank_method:
 		search_limit = limit * 5
+	
 		
 	search_results = hs.rrf_search(query, k, search_limit)
 	
 	reranked = False
 	if rerank_method:
-		results = rerank(query, search_results, rerank_method, limit)
+		search_results = rerank(query, search_results, rerank_method, limit)
 		reranked = True
-	
-	print("3")
 	
 	return {
 
@@ -267,7 +268,7 @@ def rrf_search_command(query, k, enhance, limit, rerank_method):
 		
 		"reranked": reranked,
 
-		"results": results,
+		"results": search_results,
 
 	}
 
