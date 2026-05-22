@@ -267,7 +267,7 @@ def rrf_search_command(query, k, enhance, limit, rerank_method):
 		
 		"reranked": reranked,
 
-		"results": search_results,
+		"results": results,
 
 	}
 
@@ -320,7 +320,8 @@ def rrf_search_results(query, k, enhance, limit, rerank_method):
 
 		print(f"{i}. {res['title']}")
 		
-		if "Re-rank" in res:
+		if "Re-rank" in res:
+
 			print(f"   Re-rank Score: {res.get('Re-rank', 0):.3f}/10")
 			
 
