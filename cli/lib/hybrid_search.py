@@ -97,8 +97,6 @@ class HybridSearch:
 
 		sorted_result = sorted(results, key=lambda x: x["score"], reverse=True)
 		
-		print("2")
-		
 		return sorted_result[:limit]
 
 		
@@ -252,6 +250,7 @@ def rrf_search_command(query, k, enhance, limit, rerank_method):
 		search_results = rerank(query, search_results, rerank_method, limit)
 		reranked = True
 	
+	
 	return {
 
 		"original_query": original_query,
@@ -303,8 +302,6 @@ def weighted_search_results(query, alpha, limit):
 
 def rrf_search_results(query, k, enhance, limit, rerank_method):
 	
-	print("1")
-	
 	result = rrf_search_command(query, k, enhance, limit, rerank_method)
 	
 	if result["reranked"]:
@@ -324,6 +321,12 @@ def rrf_search_results(query, k, enhance, limit, rerank_method):
 		if "Re-rank" in res:
 
 			print(f"   Re-rank Score: {res.get('Re-rank', 0):.3f}/10")
+		
+		if result["rerank_method"] == "batch":
+			print(f"   Re-rank Rank: {i}")
+		
+		if result["rerank_method"] == "cross_encoder":
+			print(f"   Cross Encoder Score: {res['crossencoder_score']}")
 			
 
 		print(f"   RRF Score: {res.get('score', 0):.3f}")
