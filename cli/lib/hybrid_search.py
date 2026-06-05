@@ -237,6 +237,8 @@ def rrf_search_command(query, k, enhance, limit, rerank_method):
 		enhanced_query = enhance_query(query, method=enhance)
 		query = enhanced_query
 	
+	print(f"enhanced query - {query}")
+	
 	search_limit = limit
 	
 	if rerank_method:
@@ -244,6 +246,9 @@ def rrf_search_command(query, k, enhance, limit, rerank_method):
 	
 		
 	search_results = hs.rrf_search(query, k, search_limit)
+	
+	for doc in search_results:
+		print(f"{doc['title']}, {doc['score']}")
 	
 	reranked = False
 	if rerank_method:
@@ -300,7 +305,9 @@ def weighted_search_results(query, alpha, limit):
 			print()
 
 
-def rrf_search_results(query, k, enhance, limit, rerank_method):
+def rrf_search_results(query, k, enhance, limit, rerank_method, evaluate):
+
+	print(f"original query - {query}")
 	
 	result = rrf_search_command(query, k, enhance, limit, rerank_method)
 	
@@ -340,7 +347,8 @@ def rrf_search_results(query, k, enhance, limit, rerank_method):
 			print(f"   {res['document'][:100]}...")
 
 			print()
-
+	
+	return result
 
 
 

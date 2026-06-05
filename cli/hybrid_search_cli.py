@@ -1,6 +1,7 @@
 import argparse
 
 from lib.hybrid_search import normalize_scores, weighted_search_results, rrf_search_results
+from lib.evaluation import llm_eval
 
 def main() -> None:
 	parser = argparse.ArgumentParser(description="Hybrid Search CLI")
@@ -20,6 +21,7 @@ def main() -> None:
 	rrf_search_parser.add_argument("--limit", type=int, default=5, help="num of results printed")
 	rrf_search_parser.add_argument("--enhance", type=str, choices=["spell", "rewrite", "expand"], help="Query enhancement method")
 	rrf_search_parser.add_argument("--rerank-method", type=str, choices=["individual", "batch", "cross_encoder"], help="method used for re-ranking results")
+	rrf_search_parser.add_argument("--evaluate", action="store_true", help="optional parameter to evaluate accuracy of the search")
 	
 	args = parser.parse_args()
 
@@ -33,7 +35,11 @@ def main() -> None:
 			weighted_search_results(args.query, args.alpha, args.limit)
 		
 		case "rrf-search":
-			rrf_search_results(args.query, args.k, args.enhance, args.limit, args.rerank_method)
+			result = rrf_search_results(args.query, args.k, args.enhance, args.limit, args.rerank_method, args.evaluate)
+			if args.evaluate:
+				llm_scores = llm_eval(args.query, result["results"]) # calls llm_eval function to get scores for accuracy of each search result
+				for i, (res, score) in enumerate(zip(result["results"], llm_scores), 1):
+					print(f"{i}. {res['title']}: {score}/3")
 			
 		case _:
 			parser.print_help()

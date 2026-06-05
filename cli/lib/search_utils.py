@@ -14,8 +14,8 @@ CACHE_DIR = os.path.join(PROJECT_ROOT, "cache")
 
 DEFAULT_CHUNK_SIZE = 200
 
-def load_golden_dataset() -> GoldenDataset:
-    with open('data/golden_dataset.json', "r") as f:
+def load_golden_dataset() -> GoldenDataset:
+    with open('data/golden_dataset.json', "r") as f:
         return json.load(f)
 
 
