@@ -44,8 +44,8 @@ class HybridSearch:
 		return combined[:limit]
 
 	def rrf_search(self, query, k, limit=10):
-		bm25_results = self._bm25_search(query, (limit * 500))
-		semantic_results = self.semantic_search.search_chunks(query, (limit * 500))
+		bm25_results = self._bm25_search(query, limit * 500)
+		semantic_results = self.semantic_search.search_chunks(query, limit * 500)
 		
 		rrf_results = {}
 		
@@ -56,11 +56,11 @@ class HybridSearch:
 					
 					"title": item["title"],
 					"document": item["document"],
-					"bm25_rank": 10000,
-					"semantic_rank": 10000,
+					"bm25_rank": None,
+					"semantic_rank": None,
 				}
 			
-			if rrf_results[doc_id]["bm25_rank"] == 10000:
+			if rrf_results[doc_id]["bm25_rank"] is None:
 				rrf_results[doc_id]["bm25_rank"] = i + 1
 		
 		for i, item in enumerate(semantic_results):
@@ -70,19 +70,22 @@ class HybridSearch:
 					
 					"title": item["title"],
 					"document": item["document"],
-					"bm25_rank": 10000,
-					"semantic_rank": 10000,
+					"bm25_rank": None,
+					"semantic_rank": None,
 				}
 			
-			if rrf_results[doc_id]["semantic_rank"] == 10000:
+			if rrf_results[doc_id]["semantic_rank"] is None:
 				rrf_results[doc_id]["semantic_rank"] = i + 1
 		
 		results = []
 
 		for doc_id, ranks in rrf_results.items():
-			bm25_rrf = rrf_score(ranks["bm25_rank"], k)
-			semantic_rrf = rrf_score(ranks["semantic_rank"], k)
-			combined_rrf_score = bm25_rrf + semantic_rrf
+			combined_rrf_score = 0
+			if ranks["bm25_rank"] is not None:
+				combined_rrf_score += rrf_score(ranks["bm25_rank"], k)
+			if ranks["semantic_rank"] is not None:
+				combined_rrf_score += rrf_score(ranks["semantic_rank"], k)
+
 			result = format_search_result(
 				doc_id=doc_id,
 				title=ranks["title"],
@@ -237,8 +240,6 @@ def rrf_search_command(query, k, enhance, limit, rerank_method):
 		enhanced_query = enhance_query(query, method=enhance)
 		query = enhanced_query
 	
-	print(f"enhanced query - {query}")
-	
 	search_limit = limit
 	
 	if rerank_method:
@@ -246,9 +247,6 @@ def rrf_search_command(query, k, enhance, limit, rerank_method):
 	
 		
 	search_results = hs.rrf_search(query, k, search_limit)
-	
-	for doc in search_results:
-		print(f"{doc['title']}, {doc['score']}")
 	
 	reranked = False
 	if rerank_method:
